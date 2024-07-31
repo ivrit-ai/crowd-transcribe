@@ -1,0 +1,6 @@
+flask
+Flask-OAuthlib
+mutagen
+sortedcontainers
+Werkzeug==2.2.2
+python-dotenv
