@@ -14,7 +14,7 @@ import random
 import sortedcontainers
 import threading
 
-from utils import utils
+import utils
 import mutagen.mp3
 from box import Box
 from sqlalchemy import func, Boolean, Float
