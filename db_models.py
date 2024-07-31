@@ -8,7 +8,7 @@ import json
 from json import JSONEncoder
 import os
 
-engine = create_engine(os.environ['DB_CONNECTION_STRING'])  # Replace with your database URI
+engine = create_engine(os.environ['DB_CONNECTION_STRING'])
 Session = sessionmaker(bind=engine)
 Base = declarative_base()
 
