@@ -8,12 +8,13 @@ import json
 from json import JSONEncoder
 import os
 
-engine = create_engine(os.environ['DB_CONNECTION_STRING'])
+engine = create_engine(os.environ["DB_CONNECTION_STRING"])
 Session = sessionmaker(bind=engine)
 Base = declarative_base()
 
+
 class Transcript(Base):
-    __tablename__ = 'transcripts'
+    __tablename__ = "transcripts"
 
     id = Column(Integer, primary_key=True)
     source = Column(Text, nullable=False, index=True)
@@ -25,9 +26,10 @@ class Transcript(Base):
 
     def __repr__(self):
         return f"<Transcript(source='{self.source}', episode='{self.episode}', segment={self.segment}, created_by={self.created_by}, created_at={self.created_at})>"
-    
+
 
 Base.metadata.create_all(engine)
+
 
 class CustomJSONEncoder(JSONEncoder):
     def default(self, obj):
@@ -35,6 +37,7 @@ class CustomJSONEncoder(JSONEncoder):
             return obj.isoformat()
 
         return JSONEncoder.default(self, obj)
+
 
 def to_dict(obj):
     return {c.name: getattr(obj, c.name) for c in obj.__table__.columns}
