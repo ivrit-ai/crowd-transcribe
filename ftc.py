@@ -1,4 +1,13 @@
-from flask import Flask, Response, redirect, render_template, request, url_for, session, jsonify
+from flask import (
+    Flask,
+    Response,
+    redirect,
+    render_template,
+    request,
+    url_for,
+    session,
+    jsonify,
+)
 from flask_oauthlib.client import OAuth
 from werkzeug.middleware.proxy_fix import ProxyFix
 
@@ -143,7 +152,9 @@ def index():
         sorted_per_user_data.add(data)
 
     return render_template(
-        "transcribe.html", user_name=session["user_email"], google_analytics_tag=os.environ["GOOGLE_ANALYTICS_TAG"]
+        "transcribe.html",
+        user_name=session["user_email"],
+        google_analytics_tag=os.environ["GOOGLE_ANALYTICS_TAG"],
     )
 
 
@@ -307,7 +318,11 @@ def submit_content():
 
     with Session() as s:
         transcript_entry = Transcript(
-            source=source, episode=episode, segment=idx, created_by=session["user_email"], data=data
+            source=source,
+            episode=episode,
+            segment=idx,
+            created_by=session["user_email"],
+            data=data,
         )
         s.add(transcript_entry)
         s.commit()
@@ -334,7 +349,9 @@ def fetch_database():
 
     # Send the gzipped response
     return Response(
-        gzip_data, mimetype="application/gzip", headers={"Content-Disposition": "attachment;filename=data.json.gz"}
+        gzip_data,
+        mimetype="application/gzip",
+        headers={"Content-Disposition": "attachment;filename=data.json.gz"},
     )
 
 
@@ -397,10 +414,14 @@ transcribed_total = (
     .query(func.sum(Transcript.data["payload"]["duration"].cast(Float)))
     .filter(Transcript.data["payload"]["skipped"].cast(Boolean) == False)
     .first()[0]
-)
+) or 0  # For empty database - fallback to 0 seconds of past transcriptions
 
 initialize_per_user_data()
 
 if __name__ == "__main__":
     port = 5005 if in_dev else 4443
-    app.run(host="0.0.0.0", port=port, ssl_context=("secrets/certchain.pem", "secrets/private.key"))
+    app.run(
+        host="0.0.0.0",
+        port=port,
+        ssl_context=("secrets/certchain.pem", "secrets/private.key"),
+    )
