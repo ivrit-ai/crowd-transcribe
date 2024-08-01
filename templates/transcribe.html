@@ -5,15 +5,21 @@
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id={{ google_analytics_tag }}"></script>
     <script>
-    window.dataLayer = window.dataLayer || [];
+        window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
+        gtag('js', new Date());
 
-    gtag('config', '{{ google_analytics_tag }}');
+        gtag('config', '{{ google_analytics_tag }}');
     </script>
-    
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+
     <link rel="icon" href="{{ url_for('static', filename='favicon.png') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/fontawesome.min.css"
+        integrity="sha512-B46MVOJpI6RBsdcU307elYeStF2JKT87SsHZfRSkjVi4/iZ3912zXi45X5/CBr/GbCyLx6M1GQtTKYRd52Jxgw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/brands.min.css"
+        integrity="sha512-EJp8vMVhYl7tBFE2rgNGb//drnr1+6XKMvTyamMS34YwOEFohhWkGq13tPWnK0FbjSS6D8YoA3n3bZmb3KiUYA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ivrit.ai crowdsourced transcription</title>
@@ -440,8 +446,13 @@
         updateContent(); // Initialize with the first text and mp3 file
         updateStatistics();
     </script>
-    <div style="text-align: center; margin-top: 5px;">
-        developed with Yarden Lifshitz for ivrit.ai
+    <div class="site-footer">
+        <span class="footer-credits">Developed with Yarden Lifshitz for ivrit.ai</span>
+        <div class="footer-links">
+            <span class="footer-link footer-link-icon"><a href="https://github.com/ivrit-ai/crowd-transcribe.git"
+                    target="_blank"><i class="fa-brands fa-github"></i></a></span>
+            <span class="footer-link"><a href="https://www.ivrit.ai" target="_blank">Ivrit.ai</a></span>
+        </div>
         <div>
 </body>
 
