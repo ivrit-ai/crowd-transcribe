@@ -1,0 +1,19 @@
+# Python
+__pycache__
+
+# Visual Studio Code
+.vscode
+
+# Ignore python virtual env folders
+.venv
+env
+venv
+
+# Ignore local .env file
+.env
+
+# Local secrets folder
+secrets
+
+# Local Dev Data Folders
+data
