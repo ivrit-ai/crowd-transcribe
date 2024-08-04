@@ -366,7 +366,12 @@ transcripts_dir = args.transcripts_dir
 initialize_transcripts()
 print(f'Done loading {len(transcripts)} transcripts.')
 
-transcribed_total = Session().query(func.sum(Transcript.data['payload']['duration'].cast(Float))).filter(Transcript.data['payload']['skipped'].cast(Boolean) == False).first()[0]
+transcribed_total = (
+    Session()
+    .query(func.sum(Transcript.data["payload"]["duration"].cast(Float)))
+    .filter(Transcript.data["payload"]["skipped"].cast(Boolean) == False)
+    .first()[0]   
+) or 0 # For empty database - fallback to 0 seconds of past transcriptions
 
 initialize_per_user_data()
 

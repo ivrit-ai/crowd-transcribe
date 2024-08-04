@@ -1,0 +1,9 @@
+flask
+Flask-OAuthlib
+mutagen
+sortedcontainers
+Werkzeug==2.2.2
+python-dotenv
+python-box[all]~=7.0
+psycopg2-binary
+SQLAlchemy
