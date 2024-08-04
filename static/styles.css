@@ -1,3 +1,16 @@
+/*
+  Simple Style Reset - Consider using something more robust
+*/
+
+a,
+a:visited,
+a:hover,
+a:active {
+  color: inherit;
+}
+
+/* Main App Styles */
+
 body {
     margin: 0;
     height: 100vh;
@@ -310,4 +323,36 @@ button:hover {
     background-color: red;
     color: white;
     cursor: pointer;
+}
+
+.site-footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.site-footer .footer-credits {
+    font-size: 1em;
+}
+
+.site-footer .footer-links {
+    display: flex;
+    align-items: center;
+    justify-items: center;
+    gap: 20px;
+}
+
+.site-footer .footer-link {
+    color: inherit;
+    text-decoration: none;
+    color: inherit;
+}
+
+.site-footer .footer-link-icon {
+    font-size: 1.5em;
+}
+.site-footer .footer-link-icon .svg-icon {
+    display: block;
+    width: 1.5em;
+    height: 1.5em;
 }
