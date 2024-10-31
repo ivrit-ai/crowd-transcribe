@@ -43,6 +43,21 @@ sorted_per_user_data = sortedcontainers.SortedList([], key=lambda member: -membe
 audio_dir = None
 transcripts_dir = None
 
+DESIRED_SOURCES = {"AcademiaIsrael",
+    "PedsIL",
+    "PedsPsychIL",
+    "SmallBigHistory",
+    "SipurimMehaagadot",
+    "OBGIL",
+    "EyesIL",
+    "PsychIL",
+    "Moneytime",
+    "MechonHadarIsrael",
+    "DoctorsIL",
+    "DoctorsAtWork",
+    "LiorSha"} 
+filtered_transcripts = None
+
 # Configure Google OAuth
 google = oauth.remote_app(
     'google',
@@ -62,7 +77,8 @@ def initialize_transcripts():
     global transcripts
 
     transcripts = []
-
+    filtered_indices = []
+    
     t_jsons = utils.find_files([transcripts_dir], '', ['.json'])
 
     if in_dev:
@@ -87,7 +103,10 @@ def initialize_transcripts():
 
             transcripts.append((source, episode, idx, text, max_logprob)) 
 
+             if source in DESIRED_SOURCES:
+                filtered_indices.append(len(transcripts) - 1)
     transcripts.sort(key=lambda e: e[4])
+    filtered_transcripts = [transcripts[i] for i in filtered_indices]
 
 def initialize_per_user_data():
     for e in Session().query(func.count(Transcript.id), func.sum(Transcript.data['payload']['duration'].cast(Float)), Transcript.created_by).filter(Transcript.data['payload']['skipped'].cast(Boolean) == False).group_by(Transcript.created_by).all():
@@ -180,9 +199,8 @@ def get_content():
             return rtc
 
     global transcripts
-
-    elem_index = random.choice(range(len(transcripts)))
-    source, episode, idx, text, max_logprob = transcripts[elem_index]
+    elem_index = random.choice(range(len(filtered_transcripts)))
+    source, episode, idx, text, max_logprob = filtered_transcripts[elem_index]
 
     fn = f'{audio_dir}/{source}/{episode}/{idx}.mp3'
 
