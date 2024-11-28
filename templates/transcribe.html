@@ -146,6 +146,7 @@
         let statsNumPauseClicks = 0;
         let statsNumPlayClicks = 0;
         let statsStartTime = 0;
+        let altRightPressed = false;
 
 
         function formatTime(seconds) {
@@ -436,6 +437,33 @@
                     statsNumPauseClicks++;
                 }
             });
+            document.addEventListener('keydown', (event) => {
+    if (event.code === 'AltRight') {
+        altRightPressed = true;
+    }
+
+    if ((event.altKey || altRightPressed) && (
+        event.code === 'KeyP' ||
+        event.key === 'p' ||
+        event.key === 'P' ||
+        event.key === 'פ' ||
+        event.key === '.' ||
+        event.key === 'ף'
+    )) {
+        event.preventDefault();
+        if (player.playing) {
+            player.pause();
+        } else {
+            player.play();
+        }
+    }
+});
+
+document.addEventListener('keyup', (event) => {
+    if (event.code === 'AltRight') {
+        altRightPressed = false;
+    }
+});
         });
 
         audioPlayer.addEventListener('ended', function () {
