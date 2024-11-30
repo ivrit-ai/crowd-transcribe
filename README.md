@@ -78,7 +78,7 @@ Text from all segments is joined to form the entire transcript for the specific 
 
 The ordinal index of the transcript into the "transcripts" array will be the (0-based) index of the audio file in the audio directory.
 
-Multiple JSON files are supported - as lone as not using the "staging mode" in which case only the first found JSON is used.
+Multiple JSON files are supported - as long as not using the "staging mode" in which case only the first found JSON is used.
 
 # Audio File Directory
 
@@ -128,8 +128,8 @@ Add the following variables:
 ```
 DB_CONNECTION_STRING - Required
 FLASK_APP_SECRET - Required (Generate Locally)
-GOOGLE_CLIENT_ID - Can Be Left empty in staging mode
-GOOGLE_CLIENT_SECRET - Can Be Left empty in staging mode
+GOOGLE_CLIENT_ID - Can Be set to any non-empty string in staging mode
+GOOGLE_CLIENT_SECRET - Can Be set to any non-empty string in staging mode
 GOOGLE_ANALYTICS_TAG - Can Be Left empty in staging mode
 FTC_USER_EMAIL - Set to some email in staging mode
 FTC_STAGING_MODE - enabled staging mode (see below)
@@ -141,3 +141,9 @@ Setting the `FTC_STAGING_MODE=1` will enable the staging mode. This will:
 - Use the FTC_USER_EMAIL email as the currently "signed in" user. (allows you to use the app without having to be logged in.)
 - Will use only the first found JSON file in the transcripts dir
 - Free you from setting up an OAuth client credentials for the Google IDP. (If this is not what you are working on)
+
+## Starting the web server
+
+Start the server, ensure the venv is active:
+
+`python ftc.py --transcripts-dir data/transcripts --audio-dir data/audio`
