@@ -353,6 +353,7 @@ def leaderboard():
 parser = argparse.ArgumentParser(description='Launch transcription server.')
 
 # Add the arguments
+parser.add_argument('--port', type=int, default=5000)
 parser.add_argument('--audio-dir', type=str, required=True,
                     help='Root directory for audio files.')
 parser.add_argument('--transcripts-dir', type=str, required=True,
@@ -361,7 +362,7 @@ parser.add_argument('--transcripts-dir', type=str, required=True,
 # Parse the arguments
 args = parser.parse_args()
 audio_dir = args.audio_dir
-transcripts_dir = args.transcripts_dir 
+transcripts_dir = args.transcripts_dir
 
 initialize_transcripts()
 print(f'Done loading {len(transcripts)} transcripts.')
@@ -375,6 +376,8 @@ transcribed_total = (
 
 initialize_per_user_data()
 
+
+
 if __name__ == '__main__':
-    port = 5005 if in_dev else 4443
+    port = args.port
     app.run(host='0.0.0.0', port=port, ssl_context=('secrets/certchain.pem', 'secrets/private.key'))
