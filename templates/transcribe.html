@@ -6,7 +6,7 @@
     <script async src="https://www.googletagmanager.com/gtag/js?id={{ google_analytics_tag }}"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
+        function gtag() { dataLayer.push(arguments); }
         gtag('js', new Date());
 
         gtag('config', '{{ google_analytics_tag }}');
@@ -27,10 +27,11 @@
     <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css">
     <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
 </head>
+
 <body>
     <div id="container">
         <div class="top-container">
-            <div></div>
+            <div id="shortcuts-modal-toggle">קיצורי מקשים</div>
             <div></div>
             <div id="dark-mode-switch-box">
                 <div id="dark-mode-switch-text">שינוי בהירות</div>
@@ -105,6 +106,56 @@
                 </div>
             </div>
         </div>
+
+        <div id="shortcuts" class="modal" style="display: none;">
+            <div class="modal-wrapper">
+                <div class="modal-header">
+                    <span class="shortcuts-close">&times;</span>
+                    <span class="header-text">קיצורי מקשים שימושיים</span>
+                </div>
+                <div id="modalContent" class="modal-content shortcut-list" dir="rtl">
+                    <div class="shortcut-row">
+                        <div class="shortcut-keys">
+                            <div><kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>Enter</kbd></div>
+                        </div>
+                        <div>הגשה ומעבר לקטע הבא</div>
+                    </div>
+                    <div class="shortcut-row">
+                        <div class="shortcut-keys">
+                            <div><kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>Space</kbd></div>
+                            <div><kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>P</kbd></div>
+                            <div><kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>פ</kbd></div>
+                            <div><kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>q</kbd></div>
+                        </div>
+                        <div>עצירה/נגינה</div>
+                    </div>
+                    <div class="shortcut-row">
+                        <div class="shortcut-keys">
+                            <div><kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>→</kbd></div>
+                        </div>
+                        <div>שניה קדימה</div>
+                    </div>
+                    <div class="shortcut-row">
+                        <div class="shortcut-keys">
+                            <div><kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>←</kbd></div>
+                        </div>
+                        <div>שניה אחורה</div>
+                    </div>
+                    <div class="shortcut-row">
+                        <div class="shortcut-keys">
+                            <div><kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>↑</kbd></div>
+                        </div>
+                        <div>5 שניות קדימה</div>
+                    </div>
+                    <div class="shortcut-row">
+                        <div class="shortcut-keys">
+                            <div><kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>↓</kbd></div>
+                        </div>
+                        <div>5 שניות אחורה</div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -123,6 +174,8 @@
         const submitButton = document.getElementById('submit-button');
         const container = document.getElementById('container');
         const modalContent = document.getElementById('modalContent');
+        var skipModal = document.getElementById("skipModal");
+        const shortcutsModal = document.getElementById("shortcuts");
 
         const unintelligibleCheckbox = document.getElementById('unintelligible');
         const foreignLanguageCheckbox = document.getElementById('foreign-language');
@@ -130,6 +183,7 @@
         const noisyCheckbox = document.getElementById('noisy');
         const tooLongCheckbox = document.getElementById('too-long');
 
+        let player;
         let originalSentence = '';
         let segmentUUID = '';
         let segmentDuration = 0.0;
@@ -146,7 +200,6 @@
         let statsNumPauseClicks = 0;
         let statsNumPlayClicks = 0;
         let statsStartTime = 0;
-        let altRightPressed = false;
 
 
         function formatTime(seconds) {
@@ -264,10 +317,43 @@
             updateReadonlyTextbox();
         });
 
+        function hideAnyShownModal() {
+            if (shortcutsModal.style.display === 'block') {
+                shortcutsModal.style.display = "none";
+            }
+            if (skipModal.style.display === "block") {
+                skipModal.style.display = "none";
+            }
+        }
+
         // Event listner for ctrl+enter to submit
         document.body.addEventListener('keydown', (event) => {
-            if(event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
+            const anyModOn = event.metaKey || event.ctrlKey;
+            if (event.key === "Enter" && anyModOn) {
                 submitButton.click()
+            } else if (anyModOn && (
+                event.code === 'Space' ||
+                event.code === 'KeyP' ||
+                event.key === 'p' ||
+                event.key === 'P' ||
+                event.key === 'פ'
+            )) {
+                event.preventDefault();
+                player && player.togglePlay();
+            } else if (anyModOn && event.code === "ArrowRight") {
+                event.preventDefault();
+                player && player.forward(1);
+            } else if (anyModOn && event.code === "ArrowLeft") {
+                event.preventDefault();
+                player && player.rewind(1);
+            } else if (anyModOn && event.code === "ArrowUp") {
+                event.preventDefault();
+                player && player.forward(5);
+            } else if (anyModOn && event.code === "ArrowDown") {
+                event.preventDefault();
+                player && player.rewind(5);
+            } else if (event.code = 'Esc') {
+                hideAnyShownModal();
             }
         });
 
@@ -383,7 +469,6 @@
         }
 
         // Configure the skip model
-        var skipModal = document.getElementById("skipModal");
         var skipButton = document.getElementById("skip-button");
         var skipSpan = document.getElementsByClassName("skip-close")[0];
 
@@ -402,12 +487,6 @@
             skipModal.style.display = "none";
         }
 
-        window.onclick = function (event) {
-            if (event.target == modal) {
-                skipModal.style.display = "none";
-            }
-        }
-
         // Handle modal form submission
         document.getElementById("skipSubmit").onclick = function () {
             // Close the modal
@@ -416,9 +495,19 @@
             submitCore(true /* skipped */);
         }
 
+        // Shortcuts modal handling
+        const showShortcutsModalButton = document.getElementById("shortcuts-modal-toggle")
+        const shortcutsModalClose = document.getElementsByClassName("shortcuts-close")[0];
+        showShortcutsModalButton.addEventListener('click', () => {
+            shortcutsModal.style.display = 'block';
+        })
+        shortcutsModalClose.addEventListener('click', () => {
+            shortcutsModal.style.display = 'none';
+        })
+
         document.addEventListener('DOMContentLoaded', function () {
             // Initialize Plyr.js
-            const player = new Plyr(audioPlayer, {
+            player = new Plyr(audioPlayer, {
                 controls: ['play', 'progress', 'current-time', 'mute', 'settings'],
                 speed: {
                     selected: 1,
@@ -435,34 +524,6 @@
                 // The following check ensures only explicit pauses are counted.
                 if (!player.ended) {
                     statsNumPauseClicks++;
-                }
-            });
-
-            document.addEventListener('keydown', (event) => {
-                if (event.code === 'AltRight') {
-                    altRightPressed = true;
-                }
-
-                if ((event.altKey || altRightPressed) && (
-                    event.code === 'KeyP' ||
-                    event.key === 'p' ||
-                    event.key === 'P' ||
-                    event.key === 'פ' ||
-                    event.key === '.' ||
-                    event.key === 'ף'
-                )) {
-                    event.preventDefault();
-                    if (player.playing) {
-                        player.pause();
-                    } else {
-                        player.play();
-                    }
-                }
-            });
-
-            document.addEventListener('keyup', (event) => {
-                if (event.code === 'AltRight') {
-                    altRightPressed = false;
                 }
             });
         });
