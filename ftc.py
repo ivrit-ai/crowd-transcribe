@@ -354,6 +354,7 @@ parser = argparse.ArgumentParser(description='Launch transcription server.')
 
 # Add the arguments
 parser.add_argument('--port', type=int, default=5000)
+parser.add_argument('--disable-ssl', action="store_true")
 parser.add_argument('--audio-dir', type=str, required=True,
                     help='Root directory for audio files.')
 parser.add_argument('--transcripts-dir', type=str, required=True,
@@ -380,4 +381,5 @@ initialize_per_user_data()
 
 if __name__ == '__main__':
     port = args.port
-    app.run(host='0.0.0.0', port=port, ssl_context=('secrets/certchain.pem', 'secrets/private.key'))
+    ssl_context = ('secrets/certchain.pem', 'secrets/private.key') if not args.disable_ssl else None
+    app.run(host='0.0.0.0', port=port, ssl_context=ssl_context)
