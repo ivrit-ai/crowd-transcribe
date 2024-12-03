@@ -114,13 +114,18 @@
                     <span class="header-text">קיצורי מקשים שימושיים</span>
                 </div>
                 <div id="modalContent" class="modal-content shortcut-list" dir="rtl">
+                    <div class="shortcut-header-row">
+                        פעיל
+                    </div>
                     <div class="shortcut-row">
+                        <input type="checkbox" id="submit">
                         <div class="shortcut-keys">
                             <div><kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>Enter</kbd></div>
                         </div>
                         <div>הגשה ומעבר לקטע הבא</div>
                     </div>
                     <div class="shortcut-row">
+                        <input type="checkbox" id="togglePlay">
                         <div class="shortcut-keys">
                             <div><kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>Space</kbd></div>
                             <div><kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>P</kbd></div>
@@ -130,28 +135,32 @@
                         <div>עצירה/נגינה</div>
                     </div>
                     <div class="shortcut-row">
+                        <input type="checkbox" id="forwardOneSec">
                         <div class="shortcut-keys">
-                            <div><kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>→</kbd></div>
+                            <div><kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>]</kbd></div>
                         </div>
                         <div>שניה קדימה</div>
                     </div>
                     <div class="shortcut-row">
+                        <input type="checkbox" id="backwardOneSec">
                         <div class="shortcut-keys">
-                            <div><kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>←</kbd></div>
+                            <div><kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>[</kbd></div>
                         </div>
                         <div>שניה אחורה</div>
                     </div>
                     <div class="shortcut-row">
+                        <input type="checkbox" id="forwardFiveSec">
                         <div class="shortcut-keys">
-                            <div><kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>↑</kbd></div>
+                            <div><kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>+</kbd></div>
                         </div>
-                        <div>5 שניות קדימה</div>
+                        <div>הגבר עוצמת שמע</div>
                     </div>
                     <div class="shortcut-row">
+                        <input type="checkbox" id="backwardFiveSec">
                         <div class="shortcut-keys">
-                            <div><kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>↓</kbd></div>
+                            <div><kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>-</kbd></div>
                         </div>
-                        <div>5 שניות אחורה</div>
+                        <div>הפחת עוצמת שמע</div>
                     </div>
                 </div>
             </div>
@@ -201,6 +210,19 @@
         let statsNumPlayClicks = 0;
         let statsStartTime = 0;
 
+
+        function isLocalStorageAvailable() {
+            var test = 'test';
+            try {
+                localStorage.setItem(test, test);
+                localStorage.removeItem(test);
+                isLocalStorageAvailable = () => true;
+                return true;
+            } catch (e) {
+                isLocalStorageAvailable = () => false;
+                return false;
+            }
+        }
 
         function formatTime(seconds) {
             minutes = Math.floor(seconds / 60);
@@ -326,10 +348,40 @@
             }
         }
 
+        const activeShortcutsStates = {};
+        function storeShortcutsState(state) {
+            if (isLocalStorageAvailable()) {
+                localStorage.setItem('active_shortcuts', JSON.stringify(state));
+            }
+        }
+        function getShortcutsState() {
+            if (isLocalStorageAvailable()) {
+                const stateStr = localStorage.getItem('active_shortcuts');
+                if (stateStr) {
+                    return JSON.parse(stateStr);
+                }
+            }
+            return {
+                submit:  true,
+                togglePlay:  true,
+            };
+        }
+
+        const allShortcutsToggles = document.querySelectorAll(".shortcut-row input")
+        const initialShortcutsState = getShortcutsState();
+        for (const toggleElem of allShortcutsToggles) {
+            const id = toggleElem.id;
+            activeShortcutsStates[id] = toggleElem.checked = initialShortcutsState[id];
+            toggleElem.addEventListener('change', (event) => {
+                activeShortcutsStates[id] = event.target.checked;
+                storeShortcutsState(activeShortcutsStates);
+            })
+        }
+
         // Event listner for ctrl+enter to submit
         document.body.addEventListener('keydown', (event) => {
             const anyModOn = event.metaKey || event.ctrlKey;
-            if (event.key === "Enter" && anyModOn) {
+            if (event.key === "Enter" && anyModOn && activeShortcutsStates.submit) {
                 submitButton.click()
             } else if (anyModOn && (
                 event.code === 'Space' ||
@@ -337,21 +389,21 @@
                 event.key === 'p' ||
                 event.key === 'P' ||
                 event.key === 'פ'
-            )) {
+            ) && activeShortcutsStates.togglePlay) {
                 event.preventDefault();
                 player && player.togglePlay();
-            } else if (anyModOn && event.code === "ArrowRight") {
+            } else if (anyModOn && event.code === "BracketRight" && activeShortcutsStates.forwardOneSec) {
                 event.preventDefault();
                 player && player.forward(1);
-            } else if (anyModOn && event.code === "ArrowLeft") {
+            } else if (anyModOn && event.code === "BracketLeft" && activeShortcutsStates.backwardOneSec) {
                 event.preventDefault();
                 player && player.rewind(1);
-            } else if (anyModOn && event.code === "ArrowUp") {
+            } else if (anyModOn && (event.code === "Equal" || event.code === "NumpadAdd") && activeShortcutsStates.forwardFiveSec) {
                 event.preventDefault();
-                player && player.forward(5);
-            } else if (anyModOn && event.code === "ArrowDown") {
+                player && player.increaseVolume(.1);
+            } else if (anyModOn && (event.code === "Minus" || event.code === "NumpadSubtract") && activeShortcutsStates.backwardFiveSec) {
                 event.preventDefault();
-                player && player.rewind(5);
+                player && player.decreaseVolume(.1);
             } else if (event.code = 'Esc') {
                 hideAnyShownModal();
             }

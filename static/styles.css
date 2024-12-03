@@ -27,10 +27,16 @@ body {
     cursor: pointer;
 }
 
-
+.shortcut-header-row {
+    font-weight: 700;
+    font-size: 0.75em;
+}
+.shortcut-row, .shortcut-header-row {
+    padding: 0 2em 0 1em;
+}
 .shortcut-list .shortcut-row {
-    padding: 1em 5px;
-
+    padding-top: 1em;
+    padding-bottom: 1em;
     display: flex;
     gap: 1em;
 
