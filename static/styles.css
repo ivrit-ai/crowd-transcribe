@@ -20,7 +20,6 @@ body {
     align-items: center;
     font-family: Arial, sans-serif;
     background-color: #f0f0f0;
-    overflow: hidden;
 }
 
 #shortcuts-modal-toggle {
@@ -101,7 +100,7 @@ kbd {
     color: #333;
 }
 
-/* Settings Menu - initially hidden via transform, slides in from the right */
+/* Settings Menu - initially with 0 opacity */
 #settings-menu {
     position: absolute;
     top: 0;
@@ -117,14 +116,16 @@ kbd {
     display: flex;
     flex-direction: column;
 
-    /* Hide menu by positioning it off-screen to the right */
-    transform: translateX(200%);
-    transition: transform 0.3s ease;
+    /* Hide menu by setting is opacity to 0 */
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none; /* Prevents interaction when hidden */
 }
 
-/* When the menu has the "show" class, slide it into view */
+/* When the menu has the "show" class, increase the opacity */
 #settings-menu.show {
-    transform: translateX(0);
+    opacity: 1;
+    pointer-events: auto; /* Restores interaction when visible */
 }
 
 /* Close button inside the menu */
@@ -137,6 +138,7 @@ kbd {
 /* Style each setting item */
 #settings-menu .setting-item {
     display: flex;
+    flex-direction: row-reverse;
     justify-content: space-between;
     align-items: center;
 }
