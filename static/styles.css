@@ -6,7 +6,7 @@ a,
 a:visited,
 a:hover,
 a:active {
-  color: inherit;
+    color: inherit;
 }
 
 /* Main App Styles */
@@ -20,6 +20,7 @@ body {
     align-items: center;
     font-family: Arial, sans-serif;
     background-color: #f0f0f0;
+    overflow: hidden;
 }
 
 #shortcuts-modal-toggle {
@@ -31,9 +32,11 @@ body {
     font-weight: 700;
     font-size: 0.75em;
 }
+
 .shortcut-row, .shortcut-header-row {
     padding: 0 2em 0 1em;
 }
+
 .shortcut-list .shortcut-row {
     padding-top: 1em;
     padding-bottom: 1em;
@@ -42,6 +45,7 @@ body {
 
     border-top: solid 1px grey;
 }
+
 .shortcut-row .shortcut-keys {
     direction: ltr;
     display: flex;
@@ -53,9 +57,8 @@ kbd {
     background-color: #eee;
     border-radius: 3px;
     border: 1px solid #b4b4b4;
-    box-shadow:
-        0 1px 1px rgba(0, 0, 0, 0.2),
-        0 2px 0 0 rgba(255, 255, 255, 0.7) inset;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2),
+    0 2px 0 0 rgba(255, 255, 255, 0.7) inset;
     color: #333;
     display: inline-block;
     font-size: 0.85em;
@@ -71,20 +74,73 @@ kbd {
     justify-content: flex-start;
     align-items: center;
     width: 80%;
-    background-color: "white";
+    background-color: white;
     padding: 10px;
     border-radius: 5px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
     margin-top: 10px;
     margin-bottom: 30px;
 }
 
-.top-container{
-    display: grid;
-    grid-template-columns: auto auto auto;
-    column-gap: 3px;
+.top-container {
+    display: flex;
+    justify-content: space-between;
     width: 100%;
 }
+
+/* Settings container positioned relative to allow absolute positioning of menu */
+#settings-container {
+    position: relative;
+    display: inline-block;
+}
+
+/* Gear Icon */
+#settings-icon {
+    cursor: pointer;
+    font-size: 20px;
+    color: #333;
+}
+
+/* Settings Menu - initially hidden via transform, slides in from the right */
+#settings-menu {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+    padding: 10px;
+    width: 220px;
+    z-index: 1000;
+    gap: 10px;
+    display: flex;
+    flex-direction: column;
+
+    /* Hide menu by positioning it off-screen to the right */
+    transform: translateX(200%);
+    transition: transform 0.3s ease;
+}
+
+/* When the menu has the "show" class, slide it into view */
+#settings-menu.show {
+    transform: translateX(0);
+}
+
+/* Close button inside the menu */
+#settings-close {
+    text-align: right;
+    cursor: pointer;
+    font-size: 20px;
+}
+
+/* Style each setting item */
+#settings-menu .setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
 
 #login-info {
     display: inline-block;
@@ -96,18 +152,15 @@ kbd {
     text-align: right;
 }
 
-.dark-mode-switch {
+.toggle-switch {
     position: relative;
     display: inline-block;
     width: 60px;
     height: 34px;
 }
 
-.dark-mode-switch input {
-    /* Hide default HTML checkbox */
-    opacity: 0;
-    width: 0;
-    height: 0;
+.toggle-switch input {
+    display: none;
 }
 
 .slider {
@@ -132,15 +185,15 @@ kbd {
     transition: .4s;
 }
 
-input:checked+.slider {
+input:checked + .slider {
     background-color: #2196F3;
 }
 
-input:focus+.slider {
+input:focus + .slider {
     box-shadow: 0 0 1px #2196F3;
 }
 
-input:checked+.slider:before {
+input:checked + .slider:before {
     transform: translateX(26px);
 }
 
@@ -263,8 +316,8 @@ button:hover {
 #complexity-arrow::before {
     content: '';
     display: block;
-    width: 0; 
-    height: 0; 
+    width: 0;
+    height: 0;
     border-left: 10px solid transparent;
     border-right: 10px solid transparent;
     border-top: 10px solid black;
@@ -297,8 +350,8 @@ button:hover {
     width: 100%; /* Full width */
     height: 100%; /* Full height */
     overflow: auto; /* Enable scroll if needed */
-    background-color: rgb(0,0,0); /* Fallback color */
-    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    background-color: rgb(0, 0, 0); /* Fallback color */
+    background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
 }
 
 .modal-header {
@@ -336,7 +389,7 @@ button:hover {
 
 @media (min-width: 768px) {
     .modal-wrapper {
-	width: 35em;
+        width: 35em;
     }
 }
 
@@ -399,6 +452,7 @@ button:hover {
 .site-footer .footer-link-icon {
     font-size: 1.5em;
 }
+
 .site-footer .footer-link-icon .svg-icon {
     display: block;
     width: 1.5em;
