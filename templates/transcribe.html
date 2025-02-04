@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/brands.min.css"
         integrity="sha512-EJp8vMVhYl7tBFE2rgNGb//drnr1+6XKMvTyamMS34YwOEFohhWkGq13tPWnK0FbjSS6D8YoA3n3bZmb3KiUYA=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/solid.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -32,17 +33,36 @@
     <div id="container">
         <div class="top-container">
             <div id="shortcuts-modal-toggle">קיצורי מקשים</div>
-            <div></div>
-            <div id="dark-mode-switch-box">
-                <div id="dark-mode-switch-text">שינוי בהירות</div>
-                <label class="dark-mode-switch">
-                    <input id="dark-mode-switch" type="checkbox" onchange="changeDarkMode(this);">
-                    <span class="slider round"></span>
-                </label>
+            <div id="settings-container">
+                <!-- Gear icon -->
+                <div id="settings-icon">
+                  <i class="fa-solid fa-gear"></i>
+                </div>
+                <!-- Hidden settings menu -->
+                <div id="settings-menu">
+                  <!-- Close button -->
+                  <div class="setting-item">
+                    <i id="settings-close" class="fa-solid fa-xmark"></i>
+                  </div>
+                  <!-- Menu items -->
+                  <div class="setting-item">
+                    <span>שינוי בהירות</span>
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="dark-mode-switch" onchange="changeDarkMode(this);">
+                      <span class="slider round"></span>
+                    </label>
+                  </div>
+                  <div class="setting-item">
+                    <span>נגן אוטומטי</span>
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="autoplay-toggle">
+                      <span class="slider round"></span>
+                    </label>
+                  </div>
+                </div>
             </div>
-        </div>
-        <div class="top-container">
-            <div></div>
+          </div>
+        <div>
             <div id="login-info">
                 <span dir="rtl">מחובר כ-<span id="username">{{ user_name }}</span>. <a href="/logout">התנתק</a></span>
                 <div id="user-seconds-transcribed"></div>
@@ -50,7 +70,6 @@
                 <div id="current-ranking"></div>
                 <div id="gap-to-level-up"></div>
             </div>
-            <div></div>
         </div>
 
         <div id="source-box"></div>
@@ -183,7 +202,9 @@
         const submitButton = document.getElementById('submit-button');
         const container = document.getElementById('container');
         const modalContent = document.getElementById('modalContent');
-        var skipModal = document.getElementById("skipModal");
+        const settingsMenu = document.getElementById('settings-menu');
+        const settingsIcon = document.getElementById('settings-icon');
+        const skipModal = document.getElementById("skipModal");
         const shortcutsModal = document.getElementById("shortcuts");
 
         const unintelligibleCheckbox = document.getElementById('unintelligible');
@@ -283,6 +304,15 @@
             // Update the audio source, text content, source, and episode
             audioPlayer.src = `data:audio/mpeg;base64,${data.audioData}`;
             audioPlayer.load();
+
+            // If the autoplay toggle is enabled, play the audio once.
+            if (document.getElementById('autoplay-toggle').checked) {
+                // https://github.com/yairl/ivrit.ai/pull/27#issuecomment-1914087084
+                setTimeout(() => {
+                    audioPlayer.play();
+                }, 700);
+            }
+
             readwriteTextbox.value = data.text;
             sourceBox.innerHTML = `<strong>מקור: </strong> ` + data.source;
             episodeBox.innerHTML = `<strong>פרק: </strong> ` + data.episode;
@@ -427,6 +457,10 @@
                 container.style.color = "white";
                 modalContent.style.backgroundColor = "black";
                 modalContent.style.color = "white";
+                settingsMenu.style.backgroundColor = "#333";
+                settingsMenu.style.borderColor = "#555";
+                settingsMenu.style.color = "white";
+                settingsIcon.style.color = "white";
             } else {
                 // Let there be light.
                 document.body.style.backgroundColor = "#f0f0f0";
@@ -435,6 +469,10 @@
                 container.style.color = "black";
                 modalContent.style.backgroundColor = "white";
                 modalContent.style.color = "black";
+                settingsMenu.style.backgroundColor = "#fff";
+                settingsMenu.style.borderColor = "#ddd";
+                settingsMenu.style.color = "black";
+                settingsIcon.style.color = "#333";
             }
         }
 
@@ -524,7 +562,7 @@
         var skipButton = document.getElementById("skip-button");
         var skipSpan = document.getElementsByClassName("skip-close")[0];
 
-        // When the user clicks the button, open the modal 
+        // When the user clicks the button, open the modal
         skipButton.onclick = function () {
             if (statsNumPlayClicks == 0) {
                 alert("לא האזנת לקטע.");
@@ -582,6 +620,25 @@
 
         audioPlayer.addEventListener('ended', function () {
             statsNumFullPlays++;
+        });
+
+        // Toggle the settings menu when the gear icon is clicked
+        settingsIcon.addEventListener('click', function(event) {
+            event.stopPropagation(); // Prevent the click from bubbling up
+            settingsMenu.classList.toggle('show');
+        });
+
+        // Close the menu when clicking on the close button
+        document.getElementById('settings-close').addEventListener('click', function() {
+            settingsMenu.classList.remove('show');
+        });
+
+        // Hide the menu when clicking anywhere outside the settings container
+        document.addEventListener('click', function(event) {
+            const settingsContainer = document.getElementById('settings-container');
+            if (!settingsContainer.contains(event.target)) {
+                settingsMenu.classList.remove('show');
+            }
         });
 
 
