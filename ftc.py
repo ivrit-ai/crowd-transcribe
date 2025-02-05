@@ -43,6 +43,23 @@ sorted_per_user_data = sortedcontainers.SortedList([], key=lambda member: -membe
 audio_dir = None
 transcripts_dir = None
 
+DIVERSITY_BIAS = 0.7  # Default bias ratio (0.0 to 1.0)
+
+DESIRED_SOURCES = {"AcademiaIsrael",
+    "PedsIL",
+    "PedsPsychIL",
+    "SmallBigHistory",
+    "SipurimMehaagadot",
+    "OBGIL",
+    "EyesIL",
+    "PsychIL",
+    "Moneytime",
+    "MechonHadarIsrael",
+    "DoctorsIL",
+    "DoctorsAtWork",
+    "LiorSha"} 
+filtered_transcripts = None
+
 # Configure Google OAuth
 google = oauth.remote_app(
     'google',
@@ -60,9 +77,8 @@ google = oauth.remote_app(
 
 def initialize_transcripts():
     global transcripts
-
     transcripts = []
-
+    
     t_jsons = utils.find_files([transcripts_dir], '', ['.json'])
 
     if in_dev:
@@ -84,11 +100,22 @@ def initialize_transcripts():
                 max_logprob = max(max_logprob, seg['avg_logprob'])
 
             text = ' '.join(texts).strip()
-
-            transcripts.append((source, episode, idx, text, max_logprob)) 
-
-    transcripts.sort(key=lambda e: e[4])
-
+            
+            # Store whether this is from a preferred source
+            is_preferred = source in DESIRED_SOURCES
+            
+            transcripts.append({
+                'source': source,
+                'episode': episode,
+                'idx': idx,
+                'text': text,
+                'max_logprob': max_logprob,
+                'is_preferred': is_preferred
+            })
+    
+    # Sort by logprob for complexity calculation
+    transcripts.sort(key=lambda e: e['max_logprob'])
+    
 def initialize_per_user_data():
     for e in Session().query(func.count(Transcript.id), func.sum(Transcript.data['payload']['duration'].cast(Float)), Transcript.created_by).filter(Transcript.data['payload']['skipped'].cast(Boolean) == False).group_by(Transcript.created_by).all():
         user = e[2]
@@ -102,6 +129,20 @@ def initialize_per_user_data():
         sorted_per_user_data.add(data)
 
 transcribed_lock = threading.Lock()
+
+def get_weighted_random_transcript():
+    """
+    Select a transcript using weighted random sampling based on DIVERSITY_BIAS.
+    Returns preferred sources more frequently based on the bias ratio.
+    """
+    if random.random() < DIVERSITY_BIAS:
+        # Try to select from preferred sources
+        preferred_transcripts = [t for t in transcripts if t['is_preferred']]
+        if preferred_transcripts:
+            return random.choice(preferred_transcripts)
+    
+    # Either bias check failed or no preferred transcripts available
+    return random.choice(transcripts)
 
 def count_transcribed_segment(user, seconds):
     global transcribed_total
@@ -175,30 +216,30 @@ def get_content():
     # Once in a while, provide an already-transcribed segment
     if random.random() < RETRANSCRIBE_RATE:
         rtc = get_retranscribe_content()
-
         if rtc:
             return rtc
 
-    global transcripts
-
-    elem_index = random.choice(range(len(transcripts)))
-    source, episode, idx, text, max_logprob = transcripts[elem_index]
-
-    fn = f'{audio_dir}/{source}/{episode}/{idx}.mp3'
+    # Use the new weighted selection method
+    transcript = get_weighted_random_transcript()
+    
+    fn = f'{audio_dir}/{transcript["source"]}/{transcript["episode"]}/{transcript["idx"]}.mp3'
+    
+    # Calculate complexity based on position in sorted list
+    complexity = 10 - round(10 * transcripts.index(transcript) / len(transcripts), 1)
 
     return jsonify({
         'audioData': base64.b64encode(open(fn, 'rb').read()).decode('utf-8'),
-        'text': text,
-        'source': source,
-        'episode': episode,
-        'segment': idx,
-        'uuid' : f'{source}/{episode}/{idx}',
-        'duration' : mutagen.mp3.MP3(fn).info.length,
-        'complexity' : 10 - round(10 * elem_index / len(transcripts), 1),
-        'max_logprob' : max_logprob,
-        'attributes' : {}
+        'text': transcript['text'],
+        'source': transcript['source'],
+        'episode': transcript['episode'],
+        'segment': transcript['idx'],
+        'uuid': f'{transcript["source"]}/{transcript["episode"]}/{transcript["idx"]}',
+        'duration': mutagen.mp3.MP3(fn).info.length,
+        'complexity': complexity,
+        'max_logprob': transcript['max_logprob'],
+        'attributes': {}
     })
-
+    
 def get_retranscribe_content():
 
     elem = None
