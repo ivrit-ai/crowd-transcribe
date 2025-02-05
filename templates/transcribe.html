@@ -598,11 +598,12 @@
         document.addEventListener('DOMContentLoaded', function () {
             // Initialize Plyr.js
             player = new Plyr(audioPlayer, {
-                controls: ['play', 'progress', 'current-time', 'mute', 'settings'],
+                controls:  ['current-time', 'progress', 'play', 'rewind', 'fast-forward', 'mute', 'volume', 'settings'],
                 speed: {
                     selected: 1,
                     options: [0.5, 1],
                 },
+                seekTime: 1,
             });
 
             player.on('play', function () {
