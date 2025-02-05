@@ -460,3 +460,44 @@ button:hover {
     width: 1.5em;
     height: 1.5em;
 }
+
+/* Plyr Styles - a lot of '!important' in order to override Plyr defaults*/
+.plyr__controls {
+    display: grid !important;
+    gap: 8px !important;
+    padding: 8px !important;
+}
+
+/* Progress and time in first row, full width */
+.plyr__progress__container, .plyr__time {
+    grid-row: 1 !important;
+}
+
+.plyr__time {
+    width: 32px !important; /* Add width so that adding a '-' does not break the layout */
+}
+
+.plyr__progress__container {
+    margin-right: 8px !important;
+    grid-column: span 4 !important;
+    justify-self: stretch !important;
+}
+
+.plyr__progress__buffer,
+.plyr__progress {
+    width: 100% !important;
+
+    input[type="range"] {
+        width: 100% !important;
+    }
+}
+
+/* All other controls are in second row */
+.plyr__control,
+[data-plyr="mute"],
+.plyr__volume,
+[data-plyr="speed"],
+.plyr__menu {
+    grid-row: 2 !important;
+    width: fit-content;
+}
